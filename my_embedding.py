@@ -2,9 +2,26 @@
 
 import torch
 import torch.nn.functional as F
+from pathlib import Path
 
 from torch import Tensor
 from transformers import AutoTokenizer, AutoModel
+
+# 使用本地模型路径
+def get_local_model_path():
+    """获取本地Embedding模型路径"""
+    script_dir = Path(__file__).parent
+    local_model_path = script_dir / ".cache" / "huggingface" / "hub" / "models--Qwen--Qwen3-Embedding-0.6B" / "snapshots" / "c54f2e6e80b2d7b7de06f51cec4959f6b3e03418"
+    
+    # 检查本地模型是否存在且完整
+    if local_model_path.exists() and (local_model_path / "config.json").exists():
+        config_size = (local_model_path / "config.json").stat().st_size
+        if config_size > 100:  # 配置文件应该有一定大小
+            print(f"🚀 Using local Qwen3-Embedding model: {local_model_path}")
+            return str(local_model_path), True
+    
+    print("⚠️ Local model not found or incomplete, using online model...")
+    return 'Qwen/Qwen3-Embedding-0.6B', False
 
 
 def last_token_pool(last_hidden_states: Tensor,
@@ -35,8 +52,24 @@ documents = [
 ]
 input_texts = queries + documents
 
-tokenizer = AutoTokenizer.from_pretrained('Qwen/Qwen3-Embedding-0.6B', padding_side='left')
-model = AutoModel.from_pretrained('Qwen/Qwen3-Embedding-0.6B')
+# 获取模型路径
+model_path, is_local = get_local_model_path()
+
+# 加载模型
+try:
+    if is_local:
+        tokenizer = AutoTokenizer.from_pretrained(model_path, padding_side='left', local_files_only=True)
+        model = AutoModel.from_pretrained(model_path, local_files_only=True)
+    else:
+        tokenizer = AutoTokenizer.from_pretrained(model_path, padding_side='left')
+        model = AutoModel.from_pretrained(model_path)
+except Exception as e:
+    print(f"❌ Failed to load model from {model_path}: {e}")
+    print("🔄 Falling back to online model...")
+    tokenizer = AutoTokenizer.from_pretrained('Qwen/Qwen3-Embedding-0.6B', padding_side='left')
+    model = AutoModel.from_pretrained('Qwen/Qwen3-Embedding-0.6B')
+
+print(f"✅ Model loaded successfully")
 
 # We recommend enabling flash_attention_2 for better acceleration and memory saving.
 # model = AutoModel.from_pretrained('Qwen/Qwen3-Embedding-0.6B', attn_implementation="flash_attention_2", torch_dtype=torch.float16).cuda()

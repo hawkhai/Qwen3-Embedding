@@ -1,6 +1,23 @@
 # Requires transformers>=4.51.0
 import torch
+from pathlib import Path
 from transformers import AutoModel, AutoTokenizer, AutoModelForCausalLM
+
+# 使用本地模型路径
+def get_local_reranker_path():
+    """获取本地Reranker模型路径"""
+    script_dir = Path(__file__).parent
+    local_model_path = script_dir / ".cache" / "huggingface" / "hub" / "models--Qwen--Qwen3-Reranker-0.6B" / "snapshots" / "6e9e69830b95c52b5fd889b7690dda3329508de3"
+    
+    # 检查本地模型是否存在且完整
+    if local_model_path.exists() and (local_model_path / "config.json").exists():
+        config_size = (local_model_path / "config.json").stat().st_size
+        if config_size > 100:  # 配置文件应该有一定大小
+            print(f"🚀 Using local Qwen3-Reranker model: {local_model_path}")
+            return str(local_model_path), True
+    
+    print("⚠️ Local reranker model not found or incomplete, using online model...")
+    return 'Qwen/Qwen3-Reranker-0.6B', False
 
 def format_instruction(instruction, query, doc):
     if instruction is None:
@@ -30,8 +47,24 @@ def compute_logits(inputs, **kwargs):
     scores = batch_scores[:, 1].exp().tolist()
     return scores
 
-tokenizer = AutoTokenizer.from_pretrained("Qwen/Qwen3-Reranker-0.6B", padding_side='left')
-model = AutoModelForCausalLM.from_pretrained("Qwen/Qwen3-Reranker-0.6B").eval()
+# 获取模型路径
+model_path, is_local = get_local_reranker_path()
+
+# 加载模型
+try:
+    if is_local:
+        tokenizer = AutoTokenizer.from_pretrained(model_path, padding_side='left', local_files_only=True)
+        model = AutoModelForCausalLM.from_pretrained(model_path, local_files_only=True).eval()
+    else:
+        tokenizer = AutoTokenizer.from_pretrained(model_path, padding_side='left')
+        model = AutoModelForCausalLM.from_pretrained(model_path).eval()
+except Exception as e:
+    print(f"❌ Failed to load reranker model from {model_path}: {e}")
+    print("🔄 Falling back to online model...")
+    tokenizer = AutoTokenizer.from_pretrained('Qwen/Qwen3-Reranker-0.6B', padding_side='left')
+    model = AutoModelForCausalLM.from_pretrained('Qwen/Qwen3-Reranker-0.6B').eval()
+
+print(f"✅ Reranker model loaded successfully")
 
 # We recommend enabling flash_attention_2 for better acceleration and memory saving.
 # model = AutoModelForCausalLM.from_pretrained("Qwen/Qwen3-Reranker-0.6B", torch_dtype=torch.float16, attn_implementation="flash_attention_2").cuda().eval()
