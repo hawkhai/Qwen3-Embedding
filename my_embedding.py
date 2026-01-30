@@ -12,14 +12,14 @@ def get_local_model_path():
     """获取本地Embedding模型路径"""
     script_dir = Path(__file__).parent
     local_model_path = script_dir / ".cache" / "huggingface" / "hub" / "models--Qwen--Qwen3-Embedding-0.6B" / "snapshots" / "c54f2e6e80b2d7b7de06f51cec4959f6b3e03418"
-    
+
     # 检查本地模型是否存在且完整
     if local_model_path.exists() and (local_model_path / "config.json").exists():
         config_size = (local_model_path / "config.json").stat().st_size
         if config_size > 100:  # 配置文件应该有一定大小
             print(f"🚀 Using local Qwen3-Embedding model: {local_model_path}")
             return str(local_model_path), True
-    
+
     print("⚠️ Local model not found or incomplete, using online model...")
     return 'Qwen/Qwen3-Embedding-0.6B', False
 

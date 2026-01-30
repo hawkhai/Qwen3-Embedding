@@ -8,14 +8,14 @@ def get_local_reranker_path():
     """获取本地Reranker模型路径"""
     script_dir = Path(__file__).parent
     local_model_path = script_dir / ".cache" / "huggingface" / "hub" / "models--Qwen--Qwen3-Reranker-0.6B" / "snapshots" / "6e9e69830b95c52b5fd889b7690dda3329508de3"
-    
+
     # 检查本地模型是否存在且完整
     if local_model_path.exists() and (local_model_path / "config.json").exists():
         config_size = (local_model_path / "config.json").stat().st_size
         if config_size > 100:  # 配置文件应该有一定大小
             print(f"🚀 Using local Qwen3-Reranker model: {local_model_path}")
             return str(local_model_path), True
-    
+
     print("⚠️ Local reranker model not found or incomplete, using online model...")
     return 'Qwen/Qwen3-Reranker-0.6B', False
 
@@ -77,7 +77,7 @@ prefix = "<|im_start|>system\nJudge whether the Document meets the requirements 
 suffix = "<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n"
 prefix_tokens = tokenizer.encode(prefix, add_special_tokens=False)
 suffix_tokens = tokenizer.encode(suffix, add_special_tokens=False)
-        
+
 task = 'Given a web search query, retrieve relevant passages that answer the query'
 
 queries = ["What is the capital of China?",
