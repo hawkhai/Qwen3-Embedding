@@ -24,7 +24,7 @@ class Qwen3Embedding():
             self.model = self.model.cuda()
         self.tokenizer = AutoTokenizer.from_pretrained(model_name_or_path, trust_remote_code=True, padding_side='left')
         self.max_length=max_length
-    
+
     def last_token_pool(self, last_hidden_states: Tensor,
         attention_mask: Tensor) -> Tensor:
         left_padding = (attention_mask[:, -1].sum() == attention_mask.shape[0])

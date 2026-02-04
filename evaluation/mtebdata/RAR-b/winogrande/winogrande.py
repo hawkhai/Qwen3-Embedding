@@ -21,12 +21,12 @@ class RARb(datasets.GeneratorBasedBuilder):
         ) for name in _SPLITS
     ]
     DEFAULT_CONFIG_NAME = "qrels"
-    
+
     def _info(self):
         return datasets.DatasetInfo(
             description=_DESCRIPTION,
             features=datasets.Features({
-                "_id": datasets.Value("string"), 
+                "_id": datasets.Value("string"),
                 "title": datasets.Value("string"),
                 "text": datasets.Value("string"),
             }) if self.config.name != "qrels" else datasets.Features({

@@ -85,7 +85,7 @@ class EvalArguments:
                 setattr(self, name, json.loads(attr))
 
 def get_tasks(names: list[str] | None, languages: list[str] | None = None, benchmark: str | None = None):
-    
+
     if benchmark:
         tasks = mteb.get_benchmark(benchmark).tasks
     else:
@@ -131,7 +131,7 @@ def run_eval(model, tasks: list, args: EvalArguments, **kwargs):
 
     _num_gpus, _started = torch.cuda.device_count(), False
     if _num_gpus > 1 and not _started and hasattr(model, 'start'):
-        model.start() 
+        model.start()
         _started = True
 
     for t in tasks:

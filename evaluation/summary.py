@@ -29,13 +29,13 @@ for task in results_list:
     if task.split(".json")[0] not in names:
         continue
     name = task.split(".json")[0]
-    meta = tasks[name].metadata 
+    meta = tasks[name].metadata
     with open(os.path.join(path, task)) as f:
         result = json.load(f)
     # print('result', result)
     task_type = meta.type
     eval_split = list(result['scores'].keys())[0]
-    
+
     score = sum([ele['main_score'] for ele in result['scores'][eval_split]]) / len(result['scores'][eval_split])
     results[name] = round(score * 100, 2)
     if task_type not in split_tasks:

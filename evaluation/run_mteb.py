@@ -310,7 +310,7 @@ def run_eval(model, tasks: list, args: EvalArguments, **kwargs):
         if t.metadata.name in RARB_tasks:
             load_rarb_data(t)
         evaluation = mteb.MTEB(tasks=[t])
-        
+
         try:
             os.environ['HF_DATASETS_OFFLINE'] = "1"
             results = evaluation.run(
@@ -364,7 +364,7 @@ def main():
                 t.load_data(force_download=True)
             else:
                 continue
-            
+
         if not args.load_model:
             return
     model = get_model(args.model, args.model_name, precision=args.precision, **args.model_kwargs)

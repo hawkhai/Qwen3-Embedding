@@ -17,7 +17,7 @@ def load_rarb_data(self, **kwargs):
     path = os.path.join(RARB_prefix, dataset_path.split('/')[-1])
     qrel_path = os.path.join(path, "qrels/test.tsv")
     split = "test"
-    self.relevant_docs[split] = {} 
+    self.relevant_docs[split] = {}
     with open(qrel_path, encoding="utf-8") as f:
         reader = csv.reader(f, delimiter="\t")
         header = next(reader) # skip header row
@@ -32,7 +32,7 @@ def load_rarb_data(self, **kwargs):
         for line in f:
             line = json.loads(line)
             self.corpus[split][line['_id']] = line['title'] + line['text']
-    
+
     filepath = os.path.join(path, "corpus.jsonl")
     with open(filepath, encoding="utf-8") as f:
         for line in f:
@@ -46,7 +46,7 @@ def load_rarb_data(self, **kwargs):
             self.queries[split][line['_id']] = line['text']
 
     self.data_loaded = True
-    
+
 def load_mlqa_data(self, **kwargs):
     """In this retrieval datasets, corpus is in lang XX and queries in lang YY."""
     if self.data_loaded:
@@ -83,7 +83,7 @@ def load_belebel_data(self, **kwargs):
     with open(os.path.join(save_path, 'lang_pairs.txt')) as f:
         for line in f:
             line = line.strip()
-            lang_pairs.append(line) 
+            lang_pairs.append(line)
     # for hf_subset, langs in _LANGUAGES.items():
     for lang_pair in lang_pairs:
         # Builds a language pair separated by an underscore. e.g., "ara-Arab_eng-Latn".

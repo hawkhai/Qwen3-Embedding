@@ -46,17 +46,17 @@ class TransformersTextEmbedder(torch.nn.Module):
             self.pooling = self._pooling_first
         elif pooler_type == 'last':
             self.pooling = self._pooling_last
-            
+
         elif pooler_type == 'mean':
             self.pooling = self._pooling_mean
-        
+
         else:
             ValueError(f"Wrong pooler : {self.pooler_type}")
 
 
     def embed(
-        self, 
-        sentences: Sequence[str], 
+        self,
+        sentences: Sequence[str],
         max_length: int,
         prompt: str | None = None,
         device: str | torch.device = 'cpu',
@@ -67,7 +67,7 @@ class TransformersTextEmbedder(torch.nn.Module):
 
     def tokenize(self, texts, max_length: int, prompt=None) -> BatchEncoding:
         if prompt:
-            texts = [prompt + t for t in texts] 
+            texts = [prompt + t for t in texts]
         inputs = self.tokenizer(texts, padding=True, truncation=True, max_length=max_length, return_tensors='pt')
         return inputs
 
@@ -177,10 +177,10 @@ class Qwen3Embedding(Wrapper):
         precision: str = 'fp32',
         mp_qsize: int = 4,
         instruction_dict_path=None,
-        instruction_template=None, 
+        instruction_template=None,
         **kwargs,  # For `TransformersTextEmbedder`
     ) -> None:
-        
+
         model_name = model.split('/')
         if model_name[-1] == '':
             model_name = model_name[-2]
@@ -238,7 +238,7 @@ class Qwen3Embedding(Wrapper):
         if 'Retrieval' in task_type and prompt_type == 'query' and instruction is None:
             instruction = "Retrieval relevant passage for the given query."
         return instruction
-        
+
     def format_instruction(self, instruction, prompt_type):
         if instruction is not None and len(instruction.strip()) > 0:
             instruction = self.instruction_template.format(instruction)

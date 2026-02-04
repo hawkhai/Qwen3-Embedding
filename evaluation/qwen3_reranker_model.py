@@ -41,15 +41,15 @@ class Qwen3RerankerInferenceModel(CrossEncoder):
         # Cache commonly used token IDs
         self.true_token = self.tokenizer("yes", add_special_tokens=False).input_ids[0]
         self.false_token = self.tokenizer("no", add_special_tokens=False).input_ids[0]
-        self.sampling_params = SamplingParams(temperature=0, 
-            top_p=0.95, 
+        self.sampling_params = SamplingParams(temperature=0,
+            top_p=0.95,
             max_tokens=1,
-            logprobs=20, 
+            logprobs=20,
             allowed_token_ids=[self.true_token,self.false_token],
         )
         self.lm = LLM(model=model_name, tensor_parallel_size=number_of_gpu, max_model_len=10000, enable_prefix_caching=True, distributed_executor_backend='ray', gpu_memory_utilization=0.8)
 
-        
+
 
     def format_instruction(self, instruction, query, doc):
         if isinstance(query, tuple):
@@ -108,4 +108,3 @@ class Qwen3RerankerInferenceModel(CrossEncoder):
 
     def stop(self):
         destroy_model_parallel()
-
